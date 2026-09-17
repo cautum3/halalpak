@@ -53,7 +53,6 @@
         .filter-btn:hover { border-color: var(--primary); color: var(--text-main); }
         .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* HERO COM FUNDO DA FACHADA (Sem espaços no nome) */
         .hero { 
             padding: 160px 5% 80px; 
             background: linear-gradient(180deg, rgba(10, 10, 10, 0.85) 0%, rgba(10, 10, 10, 0.95) 100%), url('Imag-tineda(15).jpg') center/cover no-repeat;
@@ -78,18 +77,40 @@
         .card-desc { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; flex-grow: 1; }
         
         .rating-box { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
-        .stars { display: flex; gap: 4px; cursor: pointer; font-size: 1.5rem; }
-        .star { color: #374151; transition: 0.2s; }
-        .star.active { color: var(--accent); text-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
-        .star:hover, .star:hover ~ .star { transform: scale(1.1); }
+        
+        /* SISTEMA DE ESTRELAS INTERATIVO */
+        .star-group { display: inline-flex; flex-direction: row-reverse; justify-content: flex-end; gap: 4px; }
+        .star-group .star { color: #374151; transition: 0.2s; cursor: pointer; font-size: 1.5rem; }
+        .star-group .star:hover, .star-group .star:hover ~ .star { color: var(--accent); transform: scale(1.1); }
+        .star-group .star.active { color: var(--accent); }
+        .star-group .star.my-vote { color: var(--accent); text-shadow: 0 0 12px rgba(245, 158, 11, 0.9); }
 
         #btnTop { position: fixed; bottom: 30px; right: 30px; z-index: 99; background: var(--primary); color: white; width: 50px; height: 50px; border-radius: 50%; border: none; font-size: 24px; cursor: pointer; opacity: 0; pointer-events: none; transition: 0.3s; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
         #btnTop.show { opacity: 1; pointer-events: auto; }
+        
         footer { background: var(--surface); padding: 60px 5% 30px; border-top: 1px solid var(--border); margin-top: 40px; }
         .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; }
         .footer-col h4 { color: var(--primary); margin-bottom: 20px; }
-        .toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; padding: 12px 24px; border-radius: 30px; font-weight: bold; transition: bottom 0.4s ease; z-index: 2000; }
+        
+        /* TOAST INTELIGENTE */
+        .toast { 
+            position: fixed; bottom: -200px; left: 50%; transform: translateX(-50%); 
+            background: var(--surface); color: white; padding: 20px; border-radius: 12px; 
+            transition: bottom 0.4s ease; z-index: 2000; border: 2px solid var(--primary);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8); width: 90%; max-width: 380px; text-align: center;
+        }
         .toast.show { bottom: 30px; }
+        .toast-close { 
+            position: absolute; top: 8px; right: 12px; font-size: 1.2rem; 
+            color: var(--text-muted); cursor: pointer; transition: 0.3s; font-weight: bold;
+        }
+        .toast-close:hover { color: #ef4444; }
+        .google-link {
+            display: inline-block; margin-top: 15px; color: var(--text-main); 
+            text-decoration: none; font-weight: bold; padding: 10px 15px; 
+            background: #1a73e8; border-radius: 8px; transition: 0.3s;
+        }
+        .google-link:hover { background: #1557b0; transform: translateY(-2px); }
 
         @media(max-width: 900px) {
             .nav-desktop { display: none; }
@@ -101,7 +122,6 @@
 
     <header>
         <a href="#" class="logo">
-            <!-- LOGO NOVA COM O NOME EXATO -->
             <img src="halalpak-LOGO.png" alt="PAK Logo" class="logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3082/3082008.png'">
             <div class="logo-text">
                 <h1>PAK Carnicería</h1>
@@ -170,7 +190,12 @@
     </footer>
 
     <button id="btnTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">⬆</button>
-    <div id="toast" class="toast">¡Gracias por tu valoración!</div>
+    
+    <!-- TOAST INTELIGENTE -->
+    <div id="toast" class="toast">
+        <span class="toast-close" onclick="fecharToast()">✕</span>
+        <div id="toast-content"></div>
+    </div>
 
     <script>
         function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); }
@@ -182,7 +207,6 @@
         ];
         let categorias = JSON.parse(localStorage.getItem('pak_categorias')) || categoriasPadrao;
 
-        // CATÁLOGO DE IMAGENS REAIS E FORMATADAS (SEM ESPAÇOS)
         const produtosIniciais = [
             { id: 1, titulo: "Cortes de Pollo Halal", precio: "3.50€/kg", desc: "Pechuga y muslo a la vista en nuestro mostrador.", foto: "Imag-tineda(5).jpg", categoria: "Carnicería", ratingTotal: 120, ratingCount: 25 },
             { id: 2, titulo: "Naranjas de Mesa", precio: "2.20€/kg", desc: "Fruta fresca renovada a diario.", foto: "Imag-tineda(4).jpg", categoria: "Frutas y Verduras", ratingTotal: 65, ratingCount: 14 },
@@ -195,15 +219,14 @@
         ];
         
         let productos = JSON.parse(localStorage.getItem('pak_productos')) || produtosIniciais;
+        let votosUsuario = JSON.parse(localStorage.getItem('pak_votos_usuario')) || {};
         let categoriaAtual = 'Todos';
 
         function renderizarCategorias() {
             const filterBar = document.getElementById('filter-bar');
             const sidebarCats = document.getElementById('dynamic-sidebar-cats');
-            
             filterBar.innerHTML = `<button class="filter-btn active" onclick="filtrarCategoria('Todos')">Todos</button>`;
             sidebarCats.innerHTML = '';
-
             categorias.forEach(cat => {
                 filterBar.innerHTML += `<button class="filter-btn" onclick="filtrarCategoria('${cat.nome}')">${cat.nome}</button>`;
                 sidebarCats.innerHTML += `<a href="#catalogo" onclick="filtrarCategoria('${cat.nome}')">${cat.emoji} ${cat.nome}</a>`;
@@ -225,7 +248,6 @@
         function renderizarProdutos() {
             const gridAll = document.getElementById('grid-all-products');
             const gridTop = document.getElementById('grid-top-rated');
-            
             gridAll.innerHTML = ''; gridTop.innerHTML = '';
 
             let topRated = [...productos].filter(p => calcularMedia(p) >= 4.5 && p.ratingCount > 0);
@@ -246,14 +268,21 @@
 
         function criarHTML(p) {
             let media = calcularMedia(p);
+            let meuVoto = votosUsuario[p.id] || 0;
             let starsHTML = '';
-            for(let i=1; i<=5; i++) {
-                let isAtiva = i <= Math.round(media) ? 'active' : '';
-                starsHTML += `<span class="star ${isAtiva}" onclick="votar(${p.id}, ${i})">★</span>`;
+            
+            for(let i = 5; i >= 1; i--) {
+                let starClass = '';
+                if(meuVoto > 0) {
+                    starClass = (i <= meuVoto) ? 'active my-vote' : '';
+                } else {
+                    starClass = (i <= Math.round(media)) ? 'active' : '';
+                }
+                starsHTML += `<span class="star ${starClass}" onclick="votar(event, ${p.id}, ${i})">★</span>`;
             }
+
             return `
                 <div class="card">
-                    <!-- FALLBACK CASO A FOTO ESTEJA AUSENTE NA PASTA -->
                     <img src="${p.foto}" alt="${p.titulo}" class="card-img" onerror="this.src='Imag-tineda(1).jpg'">
                     <div class="card-body">
                         <div class="card-cat">${p.categoria || 'General'}</div>
@@ -263,7 +292,7 @@
                         <p class="card-desc">${p.desc}</p>
                         <div class="rating-box">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <div class="stars">${starsHTML}</div>
+                                <div class="star-group">${starsHTML}</div>
                             </div>
                             <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">
                                 <span style="color: var(--accent); font-weight: bold;">${media}</span> (${p.ratingCount} votos)
@@ -274,18 +303,74 @@
             `;
         }
 
-        function votar(idProduto, notaDada) {
+        function votar(event, idProduto, notaClicada) {
+            event.stopPropagation(); 
+
             let prod = productos.find(p => p.id === idProduto);
-            if(prod) {
-                prod.ratingTotal += notaDada;
+            if(!prod) return;
+
+            let votoAnterior = votosUsuario[idProduto];
+
+            if (votoAnterior === notaClicada) {
+                prod.ratingTotal -= notaClicada;
+                prod.ratingCount -= 1;
+                delete votosUsuario[idProduto];
+            } else if (votoAnterior > 0) {
+                prod.ratingTotal = prod.ratingTotal - votoAnterior + notaClicada;
+                votosUsuario[idProduto] = notaClicada;
+            } else {
+                prod.ratingTotal += notaClicada;
                 prod.ratingCount += 1;
-                localStorage.setItem('pak_productos', JSON.stringify(productos));
-                const toast = document.getElementById('toast');
+                votosUsuario[idProduto] = notaClicada;
+            }
+
+            localStorage.setItem('pak_productos', JSON.stringify(productos));
+            localStorage.setItem('pak_votos_usuario', JSON.stringify(votosUsuario));
+            
+            renderizarProdutos();
+            mostrarToastInteligente();
+        }
+
+        let toastTimeout;
+        function mostrarToastInteligente() {
+            const toast = document.getElementById('toast');
+            const content = document.getElementById('toast-content');
+            let jaAvaliounoGoogle = localStorage.getItem('pak_google_reviewed');
+
+            clearTimeout(toastTimeout);
+
+            if (jaAvaliounoGoogle) {
+                content.innerHTML = "<h3 style='color: var(--primary); margin:0;'>¡Gracias por tu valoración!</h3>";
                 toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 3000);
-                renderizarProdutos();
+                toastTimeout = setTimeout(() => fecharToast(), 3000);
+            } else {
+                content.innerHTML = `
+                    <h3 style="color: var(--primary); margin:0 0 10px 0;">¡Gracias por tu valoración!</h3>
+                    <p style="margin: 0; font-size: 0.95rem;">Ayúdanos a crecer:</p>
+                    <a href="https://search.google.com/local/writereview?placeid=ChIJEwmiBqAzTg0Rv2gLACTcONo" target="_blank" class="google-link" onclick="marcarAvaliado()">
+                        Valore nuestra tienda en Google ahora y sea Vip ⭐⭐⭐⭐⭐
+                    </a>
+                `;
+                toast.classList.add('show');
+                toastTimeout = setTimeout(() => fecharToast(), 10000);
             }
         }
+
+        function fecharToast() {
+            document.getElementById('toast').classList.remove('show');
+        }
+
+        function marcarAvaliado() {
+            localStorage.setItem('pak_google_reviewed', 'true');
+            fecharToast();
+        }
+
+        document.addEventListener('click', function(event) {
+            const toast = document.getElementById('toast');
+            if (toast.classList.contains('show') && !toast.contains(event.target)) {
+                fecharToast();
+            }
+        });
 
         window.onscroll = function() { document.getElementById("btnTop").classList.toggle('show', document.documentElement.scrollTop > 300); };
         
