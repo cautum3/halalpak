@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control - PAK Carnicería</title>
+    <style>
+        :root { --bg-dark: #0a0a0a; --surface: #1a1c23; --primary: #10b981; --border: #334155; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); color: white; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh;}
+        .admin-container { width: 100%; max-width: 500px; background: var(--surface); padding: 30px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .logo-header { text-align: center; margin-bottom: 20px; }
+        .logo-img { height: 50px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.4); margin-bottom: 10px;}
+        h1 { color: var(--primary); margin: 0; font-size: 1.6rem;}
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #9ca3af; font-size: 0.9rem;}
+        input, textarea, select { width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); color: white; border-radius: 8px; box-sizing: border-box; outline: none; transition: border 0.3s;}
+        input:focus, textarea:focus, select:focus { border-color: var(--primary); }
+        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.3s;}
+        button:hover { background: #059669; }
+        .logout { display: flex; justify-content: space-between; margin-top: 25px; font-size: 0.95rem; border-top: 1px solid var(--border); padding-top: 15px; }
+        .logout a { color: #ef4444; text-decoration: none; font-weight: bold; }
+        .logout a.view-store { color: var(--primary); }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-box { background: var(--surface); padding: 25px; border-radius: 12px; width: 90%; max-width: 350px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .modal-box h3 { color: var(--primary); margin-top: 0; margin-bottom: 15px; }
+        
+        input[type="file"] { padding: 9px; cursor: pointer; }
+        input[type="file"]::file-selector-button { background: var(--border); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-right: 10px; transition: 0.3s;}
+        input[type="file"]::file-selector-button:hover { background: var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="logo-header">
+            <img src="halalpak-LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+            <h1>📦 Añadir Producto</h1>
+        </div>
+        
+        <div class="form-group">
+            <label>Título del Producto:</label>
+            <input type="text" id="add-titulo" placeholder="Ej: Arroz Basmati 1kg">
+        </div>
+        <div class="form-group">
+            <label>Precio:</label>
+            <input type="text" id="add-precio" placeholder="Ej: 4.50€">
+        </div>
+        
+        <div class="form-group">
+            <label>Categoría:</label>
+            <div style="display: flex; gap: 8px;">
+                <select id="add-cat" style="flex-grow: 1;"></select>
+                <button type="button" onclick="abrirModalCategoria()" style="width: auto; margin-top: 0; padding: 0 15px; background: #252830; color: #10b981; border: 1px solid #10b981; font-size: 1.2rem;" title="Añadir Nueva Categoría">+</button>
+                <button type="button" onclick="eliminarCategoriaSelecionada()" style="width: auto; margin-top: 0; padding: 0 15px; background: #252830; color: #ef4444; border: 1px solid #ef4444; font-size: 1.2rem;" title="Eliminar Categoría">-</button>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Descripción breve:</label>
+            <textarea id="add-desc" rows="3" placeholder="Descripción detallada..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Foto del Producto:</label>
+            <input type="file" id="add-foto" accept="image/*">
+            <small style="color: #64748b; font-size: 0.75rem; margin-top: 5px; display: block;">Selecciona una imagen desde tu móvil o computadora.</small>
+        </div>
+
+        <button onclick="iniciarSalvamentoProduto()">Publicar en la tienda</button>
+
+        <div class="logout">
+            <a href="#" onclick="sair()">🚪 Salir del Panel</a>
+            <a href="index.html" class="view-store">Ver Tienda 🛒</a>
+        </div>
+    </div>
+
+    <!-- Modal para Criar Categoria -->
+    <div id="modalCategoria" class="modal-overlay">
+        <div class="modal-box">
+            <h3>✨ Nueva Categoría</h3>
+            <div class="form-group">
+                <label>Emoji Representativo:</label>
+                <input type="text" id="nova-cat-emoji" placeholder="Ej: 🍕" maxlength="2">
+            </div>
+            <div class="form-group">
+                <label>Nombre de la Categoría:</label>
+                <input type="text" id="nova-cat-nome" placeholder="Ej: Pizzas">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="button" onclick="fecharModalCategoria()" style="background: #ef4444; margin-top: 0;">Cancelar</button>
+                <button type="button" onclick="salvarNovaCategoria()" style="margin-top: 0;">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        if(sessionStorage.getItem('adminLogado') !== 'sim') { window.location.href = 'login.html'; }
+
+        // GERENCIAR CATEGORIAS
+        let categoriasPadrao = [
+            { nome: 'Carnicería', emoji: '🥩' }, { nome: 'Frutas y Verduras', emoji: '🍎' },
+            { nome: 'Miel Natural', emoji: '🍯' }, { nome: 'Despensa del Mundo', emoji: '🌍' },
+            { nome: 'Bebidas y Snacks', emoji: '🥤' }, { nome: 'Conservas', emoji: '🥫' }
+        ];
+        let categorias = JSON.parse(localStorage.getItem('pak_categorias')) || categoriasPadrao;
+
+        function carregarCategoriasNoSelect() {
+            const select = document.getElementById('add-cat');
+            select.innerHTML = '';
+            categorias.forEach(cat => { select.innerHTML += `<option value="${cat.nome}">${cat.emoji} ${cat.nome}</option>`; });
+        }
+
+        function abrirModalCategoria() { document.getElementById('modalCategoria').style.display = 'flex'; }
+        function fecharModalCategoria() { document.getElementById('modalCategoria').style.display = 'none'; }
+        
+        function salvarNovaCategoria() {
+            const emoji = document.getElementById('nova-cat-emoji').value.trim();
+            const nome = document.getElementById('nova-cat-nome').value.trim();
+            if(nome && emoji) {
+                categorias.push({ nome, emoji });
+                localStorage.setItem('pak_categorias', JSON.stringify(categorias));
+                carregarCategoriasNoSelect();
+                fecharModalCategoria();
+                document.getElementById('add-cat').value = nome; 
+                document.getElementById('nova-cat-emoji').value = ''; document.getElementById('nova-cat-nome').value = '';
+            } else { alert('Por favor, llena el emoji y el nombre.'); }
+        }
+
+        function eliminarCategoriaSelecionada() {
+            const select = document.getElementById('add-cat');
+            const catNome = select.value;
+            if(!catNome) return;
+
+            if(confirm(`¿Estás seguro de que deseas eliminar la categoría "${catNome}"?`)) {
+                categorias = categorias.filter(c => c.nome !== catNome);
+                localStorage.setItem('pak_categorias', JSON.stringify(categorias));
+                carregarCategoriasNoSelect();
+            }
+        }
+
+        carregarCategoriasNoSelect();
+
+        // SALVAR PRODUTO COM FOTO BASE64
+        function iniciarSalvamentoProduto() {
+            const fotoInput = document.getElementById('add-foto');
+            let fotoData = 'Imag-tineda (15).jpg'; 
+
+            if (fotoInput.files && fotoInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) { finalizarSalvamento(e.target.result); };
+                reader.readAsDataURL(fotoInput.files[0]);
+            } else {
+                finalizarSalvamento(fotoData);
+            }
+        }
+
+        function finalizarSalvamento(imagemProcessada) {
+            let productos = JSON.parse(localStorage.getItem('pak_productos')) || [];
+            const titulo = document.getElementById('add-titulo').value;
+            const precio = document.getElementById('add-precio').value;
+
+            if(titulo && precio) {
+                productos.push({
+                    id: Date.now(), 
+                    titulo: titulo,
+                    precio: precio,
+                    categoria: document.getElementById('add-cat').value,
+                    desc: document.getElementById('add-desc').value,
+                    foto: imagemProcessada, 
+                    ratingTotal: 0, ratingCount: 0
+                });
+                localStorage.setItem('pak_productos', JSON.stringify(productos));
+                alert("¡Producto publicado con éxito!");
+                window.location.href = 'index.html'; 
+            } else {
+                alert("Por favor, llena el título y precio.");
+            }
+        }
+
+        function sair() { sessionStorage.removeItem('adminLogado'); window.location.href = 'index.html'; }
+    </script>
+</body>
+</html>

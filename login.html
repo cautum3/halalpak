@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Privado - PAK Carnicería</title>
+    <style>
+        :root { --bg-dark: #0a0a0a; --surface: #1a1c23; --primary: #10b981; --border: #334155; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; color: white; }
+        .login-box { background: var(--surface); padding: 40px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 100%; max-width: 350px; text-align: center; }
+        .logo-img { height: 60px; margin-bottom: 20px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.4);}
+        h2 { color: var(--primary); margin-bottom: 25px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: var(--bg-dark); border: 1px solid var(--border); color: white; border-radius: 8px; box-sizing: border-box; outline: none;}
+        input:focus { border-color: var(--primary); }
+        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.3s; }
+        button:hover { background: #059669; }
+        .error { color: #ef4444; font-size: 14px; margin-top: 15px; display: none; }
+        a { color: var(--text-muted); font-size: 14px; text-decoration: none; transition: 0.3s; color: #9ca3af; }
+        a:hover { color: var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <img src="halalpak-LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+        <h2>Área Privada</h2>
+        <input type="email" id="email" placeholder="Correo electrónico (halalpak@gmail.com)" required>
+        <input type="password" id="senha" placeholder="Contraseña (halalpak@123)" required>
+        <button onclick="fazerLogin()">Entrar al Panel</button>
+        <p class="error" id="msg-erro">Credenciales incorrectas.</p>
+        <p style="margin-top: 20px;"><a href="index.html">⬅ Volver a la tienda</a></p>
+    </div>
+
+    <script>
+        function fazerLogin() {
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            if(email === 'halalpak@gmail.com' && senha === 'halalpak@123') {
+                sessionStorage.setItem('adminLogado', 'sim');
+                window.location.href = 'admin.html';
+            } else {
+                document.getElementById('msg-erro').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
