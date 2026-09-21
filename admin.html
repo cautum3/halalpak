@@ -6,16 +6,15 @@
     <title>Panel de Control - PAK Carnicería</title>
     <style>
         :root { --bg-dark: #0a0a0a; --surface: #1a1c23; --surface-hover: #252830; --primary: #10b981; --border: #334155; --text-muted: #9ca3af; }
-        
-        /* Ajuste no body para permitir rolagem já que a lista pode ficar grande */
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); color: white; margin: 0; padding: 40px 20px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh;}
         
         .admin-container { width: 100%; max-width: 600px; background: var(--surface); padding: 30px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .logo-header { text-align: center; margin-bottom: 20px; }
-        .logo-img { height: 50px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.4); margin-bottom: 10px;}
+        .logo-img { height: 50px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.4); margin-bottom: 10px; background: white;}
         h1 { color: var(--primary); margin: 0; font-size: 1.6rem;}
         
-        .form-group { margin-bottom: 15px; }
+        .form-row { display: flex; gap: 15px; }
+        .form-group { margin-bottom: 15px; flex-grow: 1;}
         label { display: block; font-weight: bold; margin-bottom: 5px; color: var(--text-muted); font-size: 0.9rem;}
         input, textarea, select { width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); color: white; border-radius: 8px; box-sizing: border-box; outline: none; transition: border 0.3s;}
         input:focus, textarea:focus, select:focus { border-color: var(--primary); }
@@ -31,12 +30,15 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .modal-box { background: var(--surface); padding: 25px; border-radius: 12px; width: 90%; max-width: 350px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
         .modal-box h3 { color: var(--primary); margin-top: 0; margin-bottom: 15px; }
-        
-        input[type="file"] { padding: 9px; cursor: pointer; }
-        input[type="file"]::file-selector-button { background: var(--border); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-right: 10px; transition: 0.3s;}
-        input[type="file"]::file-selector-button:hover { background: var(--primary); }
 
-        /* ESTILOS DA LISTA E DO CRUD */
+        /* Botões de Câmera e Galeria */
+        .camera-btns { display: flex; gap: 10px; margin-bottom: 10px; }
+        .btn-cam { flex: 1; background: #3b82f6; color: white; padding: 12px; text-align: center; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 0; transition: 0.3s;}
+        .btn-cam:hover { background: #2563eb; }
+        .btn-gal { flex: 1; background: var(--surface-hover); color: white; padding: 12px; text-align: center; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-weight: bold; margin: 0; transition: 0.3s;}
+        .btn-gal:hover { background: var(--border); }
+        .preview-img { display: none; width: 100%; height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
+
         .crud-header { display: flex; justify-content: space-between; align-items: center; margin-top: 35px; border-top: 1px solid var(--border); padding-top: 25px; margin-bottom: 15px;}
         .crud-header h2 { color: var(--primary); font-size: 1.3rem; margin: 0;}
         .sort-btns { display: flex; gap: 8px; }
@@ -69,11 +71,23 @@
         
         <div class="form-group">
             <label>Título del Producto:</label>
-            <input type="text" id="add-titulo" placeholder="Ej: Arroz Basmati 1kg">
+            <input type="text" id="add-titulo" placeholder="Ej: Arroz Basmati">
         </div>
-        <div class="form-group">
-            <label>Precio:</label>
-            <input type="text" id="add-precio" placeholder="Ej: 4.50€">
+        
+        <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+                <label>Precio Numérico:</label>
+                <input type="text" id="add-precio" placeholder="Ej: 4.50">
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label>Unidad de medida:</label>
+                <select id="add-unidad">
+                    <option value="Unidad">Unidad (ud)</option>
+                    <option value="Kg">Kilo (Kg)</option>
+                    <option value="Caja">Caja</option>
+                    <option value="Gramo">Gramos (g)</option>
+                </select>
+            </div>
         </div>
         
         <div class="form-group">
@@ -91,15 +105,24 @@
         </div>
 
         <div class="form-group">
-            <label>Foto del Producto (Opcional si es edición):</label>
-            <input type="file" id="add-foto" accept="image/*">
-            <small style="color: #64748b; font-size: 0.75rem; margin-top: 5px; display: block;">Selecciona una imagen desde tu móvil o computadora.</small>
+            <label>Foto del Producto:</label>
+            <div class="camera-btns">
+                <label class="btn-cam">
+                    📸 Tomar Foto
+                    <!-- O atributo capture="environment" abre a câmera traseira do celular direto -->
+                    <input type="file" id="foto-cam" accept="image/*" capture="environment" style="display:none;" onchange="processarFoto(event)">
+                </label>
+                <label class="btn-gal">
+                    🖼️ Galería
+                    <input type="file" id="foto-gal" accept="image/*" style="display:none;" onchange="processarFoto(event)">
+                </label>
+            </div>
+            <img id="preview-foto" class="preview-img" alt="Vista previa de la foto">
         </div>
 
-        <button id="btn-submit" class="btn-main" onclick="iniciarSalvamentoProduto()">Publicar en la tienda</button>
+        <button id="btn-submit" class="btn-main" onclick="finalizarSalvamento()">Publicar en la tienda</button>
         <button id="btn-cancel" class="btn-cancel" onclick="cancelarEdicao()">Cancelar Edición</button>
 
-        <!-- SEÇÃO DA LISTA E DO CRUD -->
         <div class="crud-header">
             <h2>📋 Catálogo Actual</h2>
             <div class="sort-btns">
@@ -108,9 +131,7 @@
             </div>
         </div>
         
-        <div id="lista-produtos" class="product-list">
-            <!-- Os produtos aparecerão aqui via JavaScript -->
-        </div>
+        <div id="lista-produtos" class="product-list"></div>
 
         <div class="logout">
             <a href="#" onclick="sair()">🚪 Salir del Panel</a>
@@ -118,7 +139,7 @@
         </div>
     </div>
 
-    <!-- Modal para Criar Categoria -->
+    <!-- Modal Categoria (Oculto) -->
     <div id="modalCategoria" class="modal-overlay">
         <div class="modal-box">
             <h3>✨ Nueva Categoría</h3>
@@ -140,11 +161,10 @@
     <script>
         if(sessionStorage.getItem('adminLogado') !== 'sim') { window.location.href = 'login.html'; }
 
-        // VARIAVEIS DE ESTADO
         let produtoEditandoId = null;
         let produtosNoBanco = JSON.parse(localStorage.getItem('pak_productos')) || [];
+        let imagemTemporaria = null; // Guarda a foto da câmera/galeria
 
-        // GERENCIAR CATEGORIAS
         let categoriasPadrao = [
             { nome: 'Carnicería', emoji: '🥩' }, { nome: 'Frutas y Verduras', emoji: '🍎' },
             { nome: 'Miel Natural', emoji: '🍯' }, { nome: 'Despensa del Mundo', emoji: '🌍' },
@@ -170,7 +190,6 @@
                 carregarCategoriasNoSelect();
                 fecharModalCategoria();
                 document.getElementById('add-cat').value = nome; 
-                document.getElementById('nova-cat-emoji').value = ''; document.getElementById('nova-cat-nome').value = '';
             } else { alert('Por favor, llena el emoji y el nombre.'); }
         }
 
@@ -178,7 +197,6 @@
             const select = document.getElementById('add-cat');
             const catNome = select.value;
             if(!catNome) return;
-
             if(confirm(`¿Estás seguro de que deseas eliminar la categoría "${catNome}"?`)) {
                 categorias = categorias.filter(c => c.nome !== catNome);
                 localStorage.setItem('pak_categorias', JSON.stringify(categorias));
@@ -188,23 +206,22 @@
 
         carregarCategoriasNoSelect();
 
-        // RENDERIZAR LISTA DE PRODUTOS
         function renderizarLista() {
             const divLista = document.getElementById('lista-produtos');
             divLista.innerHTML = '';
-            
             if(produtosNoBanco.length === 0) {
                 divLista.innerHTML = '<p style="color:var(--text-muted); text-align:center;">No hay productos registrados.</p>';
                 return;
             }
 
             produtosNoBanco.forEach(p => {
+                let displayUnidad = p.unidad ? ` / ${p.unidad}` : '';
                 divLista.innerHTML += `
                     <div class="product-item">
                         <img src="${p.foto}" onerror="this.src='Imag-tineda(1).jpg'">
                         <div class="product-info">
                             <h4>${p.titulo}</h4>
-                            <p>${p.precio} <span>| ${p.categoria}</span></p>
+                            <p>${p.precio}€${displayUnidad} <span>| ${p.categoria}</span></p>
                         </div>
                         <div class="action-btns">
                             <button class="btn-edit" onclick="editarProduto(${p.id})" title="Editar">✏️</button>
@@ -215,122 +232,111 @@
             });
         }
 
-        // ORDENAÇÃO
         function ordenarLista(tipo) {
-            if (tipo === 'AZ') {
-                produtosNoBanco.sort((a, b) => a.titulo.localeCompare(b.titulo));
-            } else if (tipo === 'CAT') {
-                produtosNoBanco.sort((a, b) => a.categoria.localeCompare(b.categoria));
-            }
+            if (tipo === 'AZ') { produtosNoBanco.sort((a, b) => a.titulo.localeCompare(b.titulo)); } 
+            else if (tipo === 'CAT') { produtosNoBanco.sort((a, b) => a.categoria.localeCompare(b.categoria)); }
             renderizarLista();
         }
 
-        // DELETAR PRODUTO
         function deletarProduto(id) {
-            if(confirm('¿Seguro que quieres eliminar este producto de la tienda?')) {
+            if(confirm('¿Seguro que quieres eliminar este producto?')) {
                 produtosNoBanco = produtosNoBanco.filter(p => p.id !== id);
                 localStorage.setItem('pak_productos', JSON.stringify(produtosNoBanco));
                 renderizarLista();
             }
         }
 
-        // EDITAR PRODUTO (Joga os dados para cima)
+        // FUNÇÃO DA CÂMERA E GALERIA
+        function processarFoto(event) {
+            if (event.target.files && event.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) { 
+                    imagemTemporaria = e.target.result;
+                    const preview = document.getElementById('preview-foto');
+                    preview.src = imagemTemporaria;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(event.target.files[0]);
+            }
+        }
+
         function editarProduto(id) {
             let p = produtosNoBanco.find(p => p.id === id);
             if(p) {
                 document.getElementById('add-titulo').value = p.titulo;
                 document.getElementById('add-precio').value = p.precio;
                 document.getElementById('add-cat').value = p.categoria;
+                document.getElementById('add-unidad').value = p.unidad || 'Unidad';
                 document.getElementById('add-desc').value = p.desc;
-                document.getElementById('add-foto').value = ''; // Reseta input de arquivo
+                
+                document.getElementById('foto-cam').value = '';
+                document.getElementById('foto-gal').value = '';
+                imagemTemporaria = null; // Reseta a imagem nova
+
+                const preview = document.getElementById('preview-foto');
+                preview.src = p.foto; // Mostra a foto antiga
+                preview.style.display = 'block';
                 
                 produtoEditandoId = id;
                 document.getElementById('form-titulo').innerText = "✏️ Editar Producto";
                 document.getElementById('btn-submit').innerText = "Actualizar Producto";
                 document.getElementById('btn-submit').style.background = "#3b82f6";
                 document.getElementById('btn-cancel').style.display = "block";
-                
-                // Rola suavemente para o topo do formulário
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
 
-        // CANCELAR EDIÇÃO
         function cancelarEdicao() {
             produtoEditandoId = null;
             document.getElementById('add-titulo').value = '';
             document.getElementById('add-precio').value = '';
             document.getElementById('add-desc').value = '';
-            document.getElementById('add-foto').value = ''; 
-            
+            document.getElementById('foto-cam').value = '';
+            document.getElementById('foto-gal').value = '';
+            imagemTemporaria = null;
+
+            document.getElementById('preview-foto').style.display = 'none';
             document.getElementById('form-titulo').innerText = "📦 Añadir Producto";
             document.getElementById('btn-submit').innerText = "Publicar en la tienda";
             document.getElementById('btn-submit').style.background = "var(--primary)";
             document.getElementById('btn-cancel').style.display = "none";
         }
 
-        // SALVAR (Criar novo OU Atualizar existente)
-        function iniciarSalvamentoProduto() {
-            const fotoInput = document.getElementById('add-foto');
-            
-            // Se ele escolheu uma foto nova, lê a foto. Se não, manda "null".
-            if (fotoInput.files && fotoInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) { finalizarSalvamento(e.target.result); };
-                reader.readAsDataURL(fotoInput.files[0]);
-            } else {
-                finalizarSalvamento(null);
-            }
-        }
-
-        function finalizarSalvamento(imagemProcessada) {
+        function finalizarSalvamento() {
             const titulo = document.getElementById('add-titulo').value;
-            const precio = document.getElementById('add-precio').value;
+            let precio = document.getElementById('add-precio').value.replace(',', '.'); 
+            const unidad = document.getElementById('add-unidad').value;
 
-            if(!titulo || !precio) {
-                alert("Por favor, llena el título y precio.");
-                return;
-            }
+            if(!titulo || !precio) { alert("Por favor, llena el título y precio."); return; }
 
             if (produtoEditandoId) {
-                // MODO ATUALIZAÇÃO
                 let index = produtosNoBanco.findIndex(p => p.id === produtoEditandoId);
                 if(index > -1) {
                     produtosNoBanco[index].titulo = titulo;
                     produtosNoBanco[index].precio = precio;
+                    produtosNoBanco[index].unidad = unidad;
                     produtosNoBanco[index].categoria = document.getElementById('add-cat').value;
                     produtosNoBanco[index].desc = document.getElementById('add-desc').value;
-                    
-                    // Só substitui a foto se uma NOVA foi enviada
-                    if (imagemProcessada) {
-                        produtosNoBanco[index].foto = imagemProcessada;
-                    }
+                    if (imagemTemporaria) produtosNoBanco[index].foto = imagemTemporaria;
                 }
                 alert("¡Producto actualizado con éxito!");
             } else {
-                // MODO CRIAÇÃO (NOVO)
-                let fotoFinal = imagemProcessada || 'Imag-tineda(1).jpg'; // Foto padrão se criar sem foto
+                let fotoFinal = imagemTemporaria || 'Imag-tineda(1).jpg'; 
                 produtosNoBanco.push({
-                    id: Date.now(), 
-                    titulo: titulo,
-                    precio: precio,
+                    id: Date.now(), titulo: titulo, precio: precio, unidad: unidad,
                     categoria: document.getElementById('add-cat').value,
                     desc: document.getElementById('add-desc').value,
-                    foto: fotoFinal, 
-                    ratingTotal: 0, ratingCount: 0
+                    foto: fotoFinal, ratingTotal: 0, ratingCount: 0
                 });
                 alert("¡Producto publicado en la tienda!");
             }
 
-            // Salva no banco (localStorage), recarrega a lista e limpa o form
             localStorage.setItem('pak_productos', JSON.stringify(produtosNoBanco));
             cancelarEdicao();
             renderizarLista();
         }
 
         function sair() { sessionStorage.removeItem('adminLogado'); window.location.href = 'index.html'; }
-
-        // Inicia desenhando a lista
         renderizarLista();
     </script>
 </body>
