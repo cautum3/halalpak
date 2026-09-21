@@ -33,19 +33,44 @@
         .btn-call { background: var(--primary); color: white; padding: 8px 16px; border-radius: 20px; font-weight: 600; text-decoration: none; transition: 0.3s; display: inline-block; }
         .btn-call:hover { background: var(--primary-hover); transform: scale(1.05); }
 
+        .cart-icon { position: relative; cursor: pointer; font-size: 1.4rem; color: white; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: var(--surface-hover); border-radius: 50%; transition: 0.3s;}
+        .cart-icon:hover { background: var(--primary); }
+        .cart-badge { position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; font-size: 0.7rem; font-weight: bold; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+
         .menu-toggle { display: none; flex-direction: column; gap: 5px; cursor: pointer; z-index: 1001; }
         .menu-toggle span { width: 25px; height: 3px; background-color: var(--text-main); border-radius: 2px; transition: 0.3s; }
 
-        .sidebar {
-            position: fixed; top: 0; right: -100%; width: 280px; height: 100vh;
-            background: var(--surface); border-left: 1px solid var(--border);
-            padding: 80px 20px 20px; transition: right 0.4s ease; z-index: 999;
-            box-shadow: -5px 0 20px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 15px;
-        }
-        .sidebar.open { right: 0; }
-        .sidebar a { color: var(--text-main); text-decoration: none; font-size: 1.1rem; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
-        .sidebar a:hover { color: var(--primary); padding-left: 10px; }
-        .sidebar .btn-call { text-align: center; margin-top: 10px; border: none; }
+        /* NOVO DESIGN DO MENU LATERAL (SIDEBAR) */
+        .sidebar { position: fixed; top: 0; left: -100%; width: 280px; height: 100vh; background: var(--surface); border-right: 1px solid var(--border); padding: 80px 20px 20px; transition: left 0.4s ease; z-index: 999; box-shadow: 5px 0 20px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow-y: auto;}
+        .sidebar.open { left: 0; }
+        
+        .sidebar-title { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; margin: 0 0 10px 0; font-weight: bold; }
+        .sidebar-divider { border-top: 1px solid var(--border); margin: 20px 0; }
+        
+        .sidebar-links { display: flex; flex-direction: column; gap: 5px; }
+        .sidebar a { color: var(--text-main); text-decoration: none; font-size: 1.1rem; padding: 10px; border-radius: 8px; transition: 0.3s; display: block;}
+        .sidebar a:hover { background: var(--surface-hover); color: var(--primary); padding-left: 15px; }
+        
+        /* Carrinho Sidebar (Direita) */
+        .cart-sidebar { position: fixed; top: 0; right: -100%; width: 320px; height: 100vh; background: var(--surface); border-left: 1px solid var(--border); padding: 80px 20px 20px; transition: right 0.4s ease; z-index: 999; box-shadow: -5px 0 20px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
+        .cart-sidebar.open { right: 0; }
+        .cart-sidebar h3 { margin-top: 0; color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px;}
+        .cart-items { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-right: 5px;}
+        .cart-items::-webkit-scrollbar { width: 5px; }
+        .cart-items::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
+        
+        .cart-item { display: flex; align-items: center; gap: 10px; background: var(--bg-dark); padding: 10px; border-radius: 8px; border: 1px solid var(--border); transition: 0.3s;}
+        .cart-item.tachado { opacity: 0.5; }
+        .cart-item.tachado .cart-item-title { text-decoration: line-through; color: var(--text-muted); }
+        .cart-item-info { flex-grow: 1; }
+        .cart-item-title { font-size: 0.9rem; font-weight: bold; margin: 0; }
+        .cart-item-price { font-size: 0.8rem; color: var(--primary); margin: 0; }
+        .cart-item-remove { color: #ef4444; background: none; border: none; font-size: 1.2rem; cursor: pointer; }
+        
+        .cart-footer { border-top: 1px solid var(--border); padding-top: 15px; margin-top: 10px; }
+        .cart-total { display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; }
+        .btn-clear-cart { width: 100%; padding: 12px; background: var(--surface-hover); color: white; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s;}
+        .btn-clear-cart:hover { background: #ef4444; border-color: #ef4444; }
 
         .filters { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 20px; scrollbar-width: none; }
         .filters::-webkit-scrollbar { display: none; }
@@ -53,10 +78,7 @@
         .filter-btn:hover { border-color: var(--primary); color: var(--text-main); }
         .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        .hero { 
-            padding: 160px 5% 80px; 
-            background: linear-gradient(180deg, rgba(10, 10, 10, 0.85) 0%, rgba(10, 10, 10, 0.95) 100%), url('Imag-tineda(15).jpg') center/cover no-repeat;
-        }
+        .hero { padding: 160px 5% 80px; background: linear-gradient(180deg, rgba(10, 10, 10, 0.85) 0%, rgba(10, 10, 10, 0.95) 100%), url('Imag-tineda(15).jpg') center/cover no-repeat; }
         .hero h2 { font-size: 3rem; line-height: 1.1; margin-bottom: 20px; text-shadow: 0 2px 10px rgba(0,0,0,0.8);}
         .hero p { color: #e5e7eb; max-width: 600px; font-size: 1.1rem; margin-bottom: 30px; text-shadow: 0 1px 5px rgba(0,0,0,0.8);}
 
@@ -76,9 +98,11 @@
         .card-cat { font-size: 0.8rem; color: var(--primary); text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; }
         .card-desc { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; flex-grow: 1; }
         
+        .btn-add-cart { width: 100%; padding: 10px; background: var(--surface-hover); color: white; border: 1px solid var(--primary); border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 15px; }
+        .btn-add-cart:hover { background: var(--primary); }
+        .btn-add-cart.added { background: var(--bg-dark); border-color: var(--border); color: var(--text-muted); cursor: not-allowed; }
+
         .rating-box { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
-        
-        /* SISTEMA DE ESTRELAS INTERATIVO */
         .star-group { display: inline-flex; flex-direction: row-reverse; justify-content: flex-end; gap: 4px; }
         .star-group .star { color: #374151; transition: 0.2s; cursor: pointer; font-size: 1.5rem; }
         .star-group .star:hover, .star-group .star:hover ~ .star { color: var(--accent); transform: scale(1.1); }
@@ -88,28 +112,27 @@
         #btnTop { position: fixed; bottom: 30px; right: 30px; z-index: 99; background: var(--primary); color: white; width: 50px; height: 50px; border-radius: 50%; border: none; font-size: 24px; cursor: pointer; opacity: 0; pointer-events: none; transition: 0.3s; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
         #btnTop.show { opacity: 1; pointer-events: auto; }
         
+        /* Modal Quantidade */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-box { background: var(--surface); padding: 25px; border-radius: 12px; width: 90%; max-width: 320px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.8); text-align: center; }
+        .modal-box h3 { margin-top: 0; color: white; font-size: 1.1rem; }
+        .qty-input-group { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 20px 0; }
+        .qty-input-group input { width: 80px; padding: 10px; font-size: 1.2rem; text-align: center; background: var(--bg-dark); border: 1px solid var(--border); color: white; border-radius: 8px; }
+        .qty-input-group span { font-size: 1.1rem; color: var(--primary); font-weight: bold; }
+        .modal-btns { display: flex; gap: 10px; }
+        .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-cancel-qty { background: var(--surface-hover); color: white; }
+        .btn-confirm-qty { background: var(--primary); color: white; }
+
         footer { background: var(--surface); padding: 60px 5% 30px; border-top: 1px solid var(--border); margin-top: 40px; }
         .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; }
         .footer-col h4 { color: var(--primary); margin-bottom: 20px; }
         
-        /* TOAST INTELIGENTE */
-        .toast { 
-            position: fixed; bottom: -200px; left: 50%; transform: translateX(-50%); 
-            background: var(--surface); color: white; padding: 20px; border-radius: 12px; 
-            transition: bottom 0.4s ease; z-index: 2000; border: 2px solid var(--primary);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8); width: 90%; max-width: 380px; text-align: center;
-        }
+        .toast { position: fixed; bottom: -200px; left: 50%; transform: translateX(-50%); background: var(--surface); color: white; padding: 20px; border-radius: 12px; transition: bottom 0.4s ease; z-index: 2000; border: 2px solid var(--primary); box-shadow: 0 10px 40px rgba(0,0,0,0.8); width: 90%; max-width: 380px; text-align: center; }
         .toast.show { bottom: 30px; }
-        .toast-close { 
-            position: absolute; top: 8px; right: 12px; font-size: 1.2rem; 
-            color: var(--text-muted); cursor: pointer; transition: 0.3s; font-weight: bold;
-        }
+        .toast-close { position: absolute; top: 8px; right: 12px; font-size: 1.2rem; color: var(--text-muted); cursor: pointer; transition: 0.3s; font-weight: bold; }
         .toast-close:hover { color: #ef4444; }
-        .google-link {
-            display: inline-block; margin-top: 15px; color: var(--text-main); 
-            text-decoration: none; font-weight: bold; padding: 10px 15px; 
-            background: #1a73e8; border-radius: 8px; transition: 0.3s;
-        }
+        .google-link { display: inline-block; margin-top: 15px; color: var(--text-main); text-decoration: none; font-weight: bold; padding: 10px 15px; background: #1a73e8; border-radius: 8px; transition: 0.3s; }
         .google-link:hover { background: #1557b0; transform: translateY(-2px); }
 
         @media(max-width: 900px) {
@@ -129,24 +152,79 @@
             </div>
         </a>
         
-        <div class="nav-desktop">
-            <a href="#mas-deseados">Más Deseados</a>
-            <a href="#catalogo">Catálogo</a>
-            <a href="#contacto">Cómo llegar</a>
-            <a href="login.html" style="color:var(--primary); border: 1px solid var(--border); padding: 5px 12px; border-radius: 15px;">🔒 Privado</a>
-            <a href="tel:622601275" class="btn-call">📞 Llamar ahora</a>
-        </div>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <div class="nav-desktop">
+                <a href="#mas-deseados">Más Deseados</a>
+                <a href="#catalogo">Catálogo</a>
+                <a href="login.html" style="color:var(--text-muted); border: 1px solid var(--border); padding: 5px 12px; border-radius: 15px; font-size: 0.8rem;">🔒 Admin</a>
+            </div>
+            
+            <div class="cart-icon" onclick="toggleCart()">
+                🛒 <span class="cart-badge" id="cart-badge">0</span>
+            </div>
 
-        <div class="menu-toggle" onclick="toggleMenu()">
-            <span></span><span></span><span></span>
+            <div class="menu-toggle" onclick="toggleMenu()">
+                <span></span><span></span><span></span>
+            </div>
         </div>
     </header>
 
+    <!-- NOVO MENU LATERAL ESQUERDO ORGANIZADO -->
     <div class="sidebar" id="sidebar">
-        <div id="dynamic-sidebar-cats"></div>
-        <a href="#contacto" onclick="toggleMenu()" style="margin-top: 20px; border-top: 2px solid var(--border);">📍 Cómo llegar</a>
-        <a href="login.html" style="color: var(--primary);">🔒 Área Privada</a>
-        <a href="tel:622601275" class="btn-call">📞 622 60 12 75</a>
+        <!-- Seção 1: Categorias -->
+        <h4 class="sidebar-title">Categorías</h4>
+        <div class="sidebar-links" id="dynamic-sidebar-cats">
+            <!-- Categorias entram aqui via JS -->
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <!-- Seção 2: Contatos -->
+        <h4 class="sidebar-title">Contactos</h4>
+        <div class="sidebar-links">
+            <a href="#contacto" onclick="toggleMenu()">📍 Cómo llegar</a>
+            <a href="tel:622601275">📞 Teléfono: 622 60 12 75</a>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <!-- Seção 3: Admin -->
+        <a href="login.html" style="color: var(--primary); font-weight: bold; text-align: center; border: 1px solid var(--primary); border-radius: 8px;">🔒 Área Privada</a>
+    </div>
+
+    <!-- Carrinho / Lista Lateral Direito -->
+    <div class="cart-sidebar" id="cart-sidebar">
+        <h3 style="display: flex; justify-content: space-between;">
+            Lista de Compras 
+            <span style="cursor:pointer; color: var(--text-muted);" onclick="toggleCart()">✕</span>
+        </h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: -10px;">Marca los productos al encontrarlos.</p>
+        
+        <div class="cart-items" id="cart-items"></div>
+
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total estimado:</span>
+                <span style="color: var(--primary);" id="cart-total-price">0.00€</span>
+            </div>
+            <button class="btn-clear-cart" onclick="limparCarrinho()">Vaciar Lista</button>
+        </div>
+    </div>
+
+    <!-- Modal Quantidade -->
+    <div class="modal-overlay" id="qtyModal">
+        <div class="modal-box">
+            <h3 id="qty-title">Producto</h3>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">¿Qué cantidad deseas anotar?</p>
+            <div class="qty-input-group">
+                <input type="number" id="qty-input" value="1" min="0.1" step="0.1">
+                <span id="qty-unit">Kg</span>
+            </div>
+            <div class="modal-btns">
+                <button class="btn-cancel-qty" onclick="fecharModalQty()">Cancelar</button>
+                <button class="btn-confirm-qty" onclick="confirmarAdicaoCarrinho()">Añadir</button>
+            </div>
+        </div>
     </div>
 
     <section class="hero">
@@ -178,10 +256,6 @@
                 <a href="https://maps.app.goo.gl/BVKPJuyxFaouyotG7" target="_blank" class="btn-call" style="margin-top: 10px; background:var(--surface-hover); border:1px solid var(--border);">📍 Ver en Google Maps</a>
             </div>
             <div class="footer-col">
-                <h4>Contacto</h4>
-                <p>📞 622 60 12 75</p>
-            </div>
-            <div class="footer-col">
                 <h4>Horario</h4>
                 <p>🕒 Lun - Sáb: 09:00 - 21:00</p>
                 <p>🕒 Domingo: 09:00 - 20:00</p>
@@ -191,42 +265,50 @@
 
     <button id="btnTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">⬆</button>
     
-    <!-- TOAST INTELIGENTE -->
     <div id="toast" class="toast">
         <span class="toast-close" onclick="fecharToast()">✕</span>
         <div id="toast-content"></div>
     </div>
 
     <script>
-        function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); }
+        function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('cart-sidebar').classList.remove('open'); }
+        function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); document.getElementById('sidebar').classList.remove('open'); }
 
-        const categoriasPadrao = [
+        let categorias = JSON.parse(localStorage.getItem('pak_categorias')) || [
             { nome: 'Carnicería', emoji: '🥩' }, { nome: 'Frutas y Verduras', emoji: '🍎' },
             { nome: 'Miel Natural', emoji: '🍯' }, { nome: 'Despensa del Mundo', emoji: '🌍' },
             { nome: 'Bebidas y Snacks', emoji: '🥤' }, { nome: 'Conservas', emoji: '🥫' }
         ];
-        let categorias = JSON.parse(localStorage.getItem('pak_categorias')) || categoriasPadrao;
 
-        const produtosIniciais = [
-            { id: 1, titulo: "Cortes de Pollo Halal", precio: "3.50€/kg", desc: "Pechuga y muslo a la vista en nuestro mostrador.", foto: "Imag-tineda(5).jpg", categoria: "Carnicería", ratingTotal: 120, ratingCount: 25 },
-            { id: 2, titulo: "Naranjas de Mesa", precio: "2.20€/kg", desc: "Fruta fresca renovada a diario.", foto: "Imag-tineda(4).jpg", categoria: "Frutas y Verduras", ratingTotal: 65, ratingCount: 14 },
-            { id: 3, titulo: "Corte de Carne Halal", precio: "9.50€/kg", desc: "Cortes premium preparados por nuestros carniceros expertos.", foto: "Imag-tineda(12).jpg", categoria: "Carnicería", ratingTotal: 88, ratingCount: 18 },
-            { id: 4, titulo: "Miel Natural Artesana", precio: "12.50€", desc: "Miel pura y jarabes recolectados de forma tradicional.", foto: "Imag-tineda(16).jpg", categoria: "Miel Natural", ratingTotal: 48, ratingCount: 10 },
-            { id: 5, titulo: "Arroz y Especias", precio: "Varios", desc: "Arroces internacionales y surtido de especias.", foto: "Imag-tineda(2).jpg", categoria: "Despensa del Mundo", ratingTotal: 35, ratingCount: 8 },
-            { id: 6, titulo: "Snacks y Aperitivos", precio: "Desde 1.00€", desc: "Gran variedad de snacks, Doritos y Grefusa.", foto: "Imag-tineda(8).jpg", categoria: "Bebidas y Snacks", ratingTotal: 15, ratingCount: 4 },
-            { id: 7, titulo: "Productos Congelados", precio: "Varios", desc: "Conservas, vegetales congelados y productos Goya.", foto: "Imag-tineda(7).jpg", categoria: "Conservas", ratingTotal: 25, ratingCount: 6 },
-            { id: 8, titulo: "Limas y Verduras", precio: "1.99€/kg", desc: "Limas frescas, tomates y variedad de verduras.", foto: "Imag-tineda(9).jpg", categoria: "Frutas y Verduras", ratingTotal: 30, ratingCount: 7 }
+        let produtosIniciais = [
+            { id: 1, titulo: "Cortes de Pollo Halal", precio: "3.50", unidad: "Kg", desc: "Pechuga y muslo a la vista en nuestro mostrador.", foto: "Imag-tineda(5).jpg", categoria: "Carnicería", ratingTotal: 120, ratingCount: 25 },
+            { id: 2, titulo: "Naranjas de Mesa", precio: "2.20", unidad: "Kg", desc: "Fruta fresca renovada a diario.", foto: "Imag-tineda(4).jpg", categoria: "Frutas y Verduras", ratingTotal: 65, ratingCount: 14 },
+            { id: 3, titulo: "Corte de Carne Halal", precio: "9.50", unidad: "Kg", desc: "Cortes premium preparados por nuestros carniceros expertos.", foto: "Imag-tineda(12).jpg", categoria: "Carnicería", ratingTotal: 88, ratingCount: 18 },
+            { id: 4, titulo: "Miel Natural Artesana", precio: "12.50", unidad: "Unidad", desc: "Miel pura y jarabes recolectados de forma tradicional.", foto: "Imag-tineda(16).jpg", categoria: "Miel Natural", ratingTotal: 48, ratingCount: 10 },
+            { id: 5, titulo: "Arroz y Especias", precio: "4.00", unidad: "Unidad", desc: "Arroces internacionales y surtido de especias.", foto: "Imag-tineda(2).jpg", categoria: "Despensa del Mundo", ratingTotal: 35, ratingCount: 8 },
+            { id: 6, titulo: "Snacks y Aperitivos", precio: "1.00", unidad: "Unidad", desc: "Gran variedad de snacks, Doritos y Grefusa.", foto: "Imag-tineda(8).jpg", categoria: "Bebidas y Snacks", ratingTotal: 15, ratingCount: 4 },
+            { id: 7, titulo: "Productos Congelados", precio: "3.50", unidad: "Unidad", desc: "Conservas, vegetales congelados y productos Goya.", foto: "Imag-tineda(7).jpg", categoria: "Conservas", ratingTotal: 25, ratingCount: 6 },
+            { id: 8, titulo: "Limas y Verduras", precio: "1.99", unidad: "Kg", desc: "Limas frescas, tomates y variedad de verduras.", foto: "Imag-tineda(9).jpg", categoria: "Frutas y Verduras", ratingTotal: 30, ratingCount: 7 }
         ];
         
         let productos = JSON.parse(localStorage.getItem('pak_productos')) || produtosIniciais;
         let votosUsuario = JSON.parse(localStorage.getItem('pak_votos_usuario')) || {};
+        let carrinho = JSON.parse(localStorage.getItem('pak_carrinho')) || [];
+        let produtoSelecionadoTemp = null; 
         let categoriaAtual = 'Todos';
 
+        function extrairPreco(precoTexto) {
+            let matches = String(precoTexto).match(/[\d.,]+/);
+            return matches ? parseFloat(matches[0].replace(',', '.')) : 0;
+        }
+
+        // Alterada para popular a nova estrutura do sidebar
         function renderizarCategorias() {
             const filterBar = document.getElementById('filter-bar');
             const sidebarCats = document.getElementById('dynamic-sidebar-cats');
             filterBar.innerHTML = `<button class="filter-btn active" onclick="filtrarCategoria('Todos')">Todos</button>`;
             sidebarCats.innerHTML = '';
+            
             categorias.forEach(cat => {
                 filterBar.innerHTML += `<button class="filter-btn" onclick="filtrarCategoria('${cat.nome}')">${cat.nome}</button>`;
                 sidebarCats.innerHTML += `<a href="#catalogo" onclick="filtrarCategoria('${cat.nome}')">${cat.emoji} ${cat.nome}</a>`;
@@ -272,14 +354,14 @@
             let starsHTML = '';
             
             for(let i = 5; i >= 1; i--) {
-                let starClass = '';
-                if(meuVoto > 0) {
-                    starClass = (i <= meuVoto) ? 'active my-vote' : '';
-                } else {
-                    starClass = (i <= Math.round(media)) ? 'active' : '';
-                }
+                let starClass = meuVoto > 0 ? (i <= meuVoto ? 'active my-vote' : '') : (i <= Math.round(media) ? 'active' : '');
                 starsHTML += `<span class="star ${starClass}" onclick="votar(event, ${p.id}, ${i})">★</span>`;
             }
+
+            let noCarrinho = carrinho.find(item => item.id === p.id);
+            let btnClass = noCarrinho ? 'btn-add-cart added' : 'btn-add-cart';
+            let btnText = noCarrinho ? '✓ En la lista' : 'Seleccionar';
+            let displayUnidad = p.unidad ? ` / ${p.unidad}` : '';
 
             return `
                 <div class="card">
@@ -287,9 +369,10 @@
                     <div class="card-body">
                         <div class="card-cat">${p.categoria || 'General'}</div>
                         <div class="card-top">
-                            <h4 class="card-title">${p.titulo}</h4><span class="card-price">${p.precio}</span>
+                            <h4 class="card-title">${p.titulo}</h4><span class="card-price">${p.precio}€${displayUnidad}</span>
                         </div>
                         <p class="card-desc">${p.desc}</p>
+                        
                         <div class="rating-box">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
                                 <div class="star-group">${starsHTML}</div>
@@ -298,37 +381,110 @@
                                 <span style="color: var(--accent); font-weight: bold;">${media}</span> (${p.ratingCount} votos)
                             </div>
                         </div>
+
+                        <button class="${btnClass}" onclick="abrirModalQuantidade(${p.id})"${noCarrinho ? ' disabled' : ''}>${btnText}</button>
                     </div>
                 </div>
             `;
         }
 
-        function votar(event, idProduto, notaClicada) {
-            event.stopPropagation(); 
-
+        function abrirModalQuantidade(idProduto) {
             let prod = productos.find(p => p.id === idProduto);
             if(!prod) return;
+            produtoSelecionadoTemp = prod;
+            document.getElementById('qty-title').innerText = prod.titulo;
+            document.getElementById('qty-unit').innerText = prod.unidad || 'Unidad';
+            document.getElementById('qty-input').value = 1;
+            document.getElementById('qtyModal').style.display = 'flex';
+        }
 
+        function fecharModalQty() {
+            document.getElementById('qtyModal').style.display = 'none';
+            produtoSelecionadoTemp = null;
+        }
+
+        function confirmarAdicaoCarrinho() {
+            if(!produtoSelecionadoTemp) return;
+            let qtde = parseFloat(document.getElementById('qty-input').value);
+            if(isNaN(qtde) || qtde <= 0) { alert("Cantidad inválida"); return; }
+            let valorNumerico = extrairPreco(produtoSelecionadoTemp.precio);
+            let subtotal = valorNumerico * qtde;
+
+            carrinho.push({
+                id: produtoSelecionadoTemp.id, titulo: produtoSelecionadoTemp.titulo,
+                qtde: qtde, unidad: produtoSelecionadoTemp.unidad || 'ud',
+                subtotal: subtotal, checado: false 
+            });
+
+            localStorage.setItem('pak_carrinho', JSON.stringify(carrinho));
+            fecharModalQty(); atualizarCarrinhoUI(); renderizarProdutos(); 
+        }
+
+        function atualizarCarrinhoUI() {
+            document.getElementById('cart-badge').innerText = carrinho.length;
+            let listHTML = ''; let total = 0;
+
+            carrinho.forEach(item => {
+                total += item.subtotal;
+                let classeTachado = item.checado ? 'tachado' : '';
+                let checkedAttr = item.checado ? 'checked' : '';
+                listHTML += `
+                    <div class="cart-item ${classeTachado}">
+                        <input type="checkbox" ${checkedAttr} onchange="toggleCheckItem(${item.id})" style="width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer;">
+                        <div class="cart-item-info">
+                            <p class="cart-item-title">${item.titulo}</p>
+                            <p class="cart-item-price">${item.qtde} ${item.unidad} - <b>${item.subtotal.toFixed(2)}€</b></p>
+                        </div>
+                        <button class="cart-item-remove" onclick="removerDoCarrinho(${item.id})" title="Quitar">×</button>
+                    </div>
+                `;
+            });
+
+            if(carrinho.length === 0) listHTML = '<p style="color:var(--text-muted); text-align:center; margin-top:30px;">Tu lista está vacía.</p>';
+            document.getElementById('cart-items').innerHTML = listHTML;
+            document.getElementById('cart-total-price').innerText = total.toFixed(2) + '€';
+        }
+
+        function toggleCheckItem(id) {
+            let index = carrinho.findIndex(item => item.id === id);
+            if(index > -1) {
+                carrinho[index].checado = !carrinho[index].checado;
+                localStorage.setItem('pak_carrinho', JSON.stringify(carrinho));
+                atualizarCarrinhoUI();
+            }
+        }
+
+        function removerDoCarrinho(id) {
+            carrinho = carrinho.filter(item => item.id !== id);
+            localStorage.setItem('pak_carrinho', JSON.stringify(carrinho));
+            atualizarCarrinhoUI(); renderizarProdutos(); 
+        }
+
+        function limparCarrinho() {
+            if(carrinho.length > 0 && confirm('¿Estás seguro de que deseas vaciar tu lista?')) {
+                carrinho = [];
+                localStorage.setItem('pak_carrinho', JSON.stringify(carrinho));
+                atualizarCarrinhoUI(); renderizarProdutos();
+            }
+        }
+
+        function votar(event, idProduto, notaClicada) {
+            event.stopPropagation(); 
+            let prod = productos.find(p => p.id === idProduto);
+            if(!prod) return;
             let votoAnterior = votosUsuario[idProduto];
 
             if (votoAnterior === notaClicada) {
-                prod.ratingTotal -= notaClicada;
-                prod.ratingCount -= 1;
-                delete votosUsuario[idProduto];
+                prod.ratingTotal -= notaClicada; prod.ratingCount -= 1; delete votosUsuario[idProduto];
             } else if (votoAnterior > 0) {
-                prod.ratingTotal = prod.ratingTotal - votoAnterior + notaClicada;
-                votosUsuario[idProduto] = notaClicada;
+                prod.ratingTotal = prod.ratingTotal - votoAnterior + notaClicada; votosUsuario[idProduto] = notaClicada;
             } else {
-                prod.ratingTotal += notaClicada;
-                prod.ratingCount += 1;
-                votosUsuario[idProduto] = notaClicada;
+                prod.ratingTotal += notaClicada; prod.ratingCount += 1; votosUsuario[idProduto] = notaClicada;
             }
 
             localStorage.setItem('pak_productos', JSON.stringify(productos));
             localStorage.setItem('pak_votos_usuario', JSON.stringify(votosUsuario));
-            
-            renderizarProdutos();
-            mostrarToastInteligente();
+            renderizarProdutos(); mostrarToastInteligente();
         }
 
         let toastTimeout;
@@ -336,46 +492,35 @@
             const toast = document.getElementById('toast');
             const content = document.getElementById('toast-content');
             let jaAvaliounoGoogle = localStorage.getItem('pak_google_reviewed');
-
             clearTimeout(toastTimeout);
 
             if (jaAvaliounoGoogle) {
                 content.innerHTML = "<h3 style='color: var(--primary); margin:0;'>¡Gracias por tu valoración!</h3>";
-                toast.classList.add('show');
-                toastTimeout = setTimeout(() => fecharToast(), 3000);
+                toast.classList.add('show'); toastTimeout = setTimeout(() => fecharToast(), 3000);
             } else {
                 content.innerHTML = `
                     <h3 style="color: var(--primary); margin:0 0 10px 0;">¡Gracias por tu valoración!</h3>
                     <p style="margin: 0; font-size: 0.95rem;">Ayúdanos a crecer:</p>
-                    <a href="https://search.google.com/local/writereview?placeid=ChIJEwmiBqAzTg0Rv2gLACTcONo" target="_blank" class="google-link" onclick="marcarAvaliado()">
-                        Valore nuestra tienda en Google ahora y sea Vip ⭐⭐⭐⭐⭐
-                    </a>
+                    <a href="#" class="google-link" onclick="abrirPopUpGoogle(event)">Valore nuestra tienda en Google ahora y sea Vip ⭐⭐⭐⭐⭐</a>
                 `;
-                toast.classList.add('show');
-                toastTimeout = setTimeout(() => fecharToast(), 10000);
+                toast.classList.add('show'); toastTimeout = setTimeout(() => fecharToast(), 10000);
             }
         }
+        function fecharToast() { document.getElementById('toast').classList.remove('show'); }
+        function marcarAvaliado() { localStorage.setItem('pak_google_reviewed', 'true'); fecharToast(); }
 
-        function fecharToast() {
-            document.getElementById('toast').classList.remove('show');
+        function abrirPopUpGoogle(event) {
+            event.preventDefault(); marcarAvaliado();
+            const l = 600, a = 650;
+            const left = (screen.width - l) / 2, top = (screen.height - a) / 2;
+            window.open('https://search.google.com/local/writereview?placeid=ChIJEwmiBqAzTg0Rv2gLACTcONo', 'GoogleReview', `width=${l},height=${a},top=${top},left=${left},scrollbars=yes,status=no,resizable=yes`);
         }
-
-        function marcarAvaliado() {
-            localStorage.setItem('pak_google_reviewed', 'true');
-            fecharToast();
-        }
-
-        document.addEventListener('click', function(event) {
-            const toast = document.getElementById('toast');
-            if (toast.classList.contains('show') && !toast.contains(event.target)) {
-                fecharToast();
-            }
-        });
 
         window.onscroll = function() { document.getElementById("btnTop").classList.toggle('show', document.documentElement.scrollTop > 300); };
         
         renderizarCategorias();
         renderizarProdutos();
+        atualizarCarrinhoUI();
     </script>
 </body>
 </html>
