@@ -31,7 +31,6 @@
         .modal-box { background: var(--surface); padding: 25px; border-radius: 12px; width: 90%; max-width: 350px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
         .modal-box h3 { color: var(--primary); margin-top: 0; margin-bottom: 15px; }
 
-        /* Botões de Câmera e Galeria */
         .camera-btns { display: flex; gap: 10px; margin-bottom: 10px; }
         .btn-cam { flex: 1; background: #3b82f6; color: white; padding: 12px; text-align: center; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 0; transition: 0.3s;}
         .btn-cam:hover { background: #2563eb; }
@@ -94,8 +93,8 @@
             <label>Categoría:</label>
             <div style="display: flex; gap: 8px;">
                 <select id="add-cat" style="flex-grow: 1;"></select>
-                <button type="button" onclick="abrirModalCategoria()" style="width: auto; margin-top: 0; padding: 0 15px; background: #252830; color: #10b981; border: 1px solid #10b981; font-size: 1.2rem; border-radius:8px;" title="Añadir Nueva Categoría">+</button>
-                <button type="button" onclick="eliminarCategoriaSelecionada()" style="width: auto; margin-top: 0; padding: 0 15px; background: #252830; color: #ef4444; border: 1px solid #ef4444; font-size: 1.2rem; border-radius:8px;" title="Eliminar Categoría">-</button>
+                <button type="button" onclick="abrirModalNovaCategoria()" style="width: auto; margin-top: 0; padding: 0 15px; background: #252830; color: #10b981; border: 1px solid #10b981; font-size: 1.2rem; border-radius:8px;" title="Añadir Nueva Categoría">+</button>
+                <button type="button" onclick="tentarEliminarCategoria()" style="width: auto; margin-top: 0; padding: 0 15px; background: #252830; color: #ef4444; border: 1px solid #ef4444; font-size: 1.2rem; border-radius:8px;" title="Eliminar Categoría">-</button>
             </div>
         </div>
         
@@ -107,15 +106,8 @@
         <div class="form-group">
             <label>Foto del Producto:</label>
             <div class="camera-btns">
-                <label class="btn-cam">
-                    📸 Tomar Foto
-                    <!-- O atributo capture="environment" abre a câmera traseira do celular direto -->
-                    <input type="file" id="foto-cam" accept="image/*" capture="environment" style="display:none;" onchange="processarFoto(event)">
-                </label>
-                <label class="btn-gal">
-                    🖼️ Galería
-                    <input type="file" id="foto-gal" accept="image/*" style="display:none;" onchange="processarFoto(event)">
-                </label>
+                <label class="btn-cam">📸 Tomar Foto<input type="file" id="foto-cam" accept="image/*" capture="environment" style="display:none;" onchange="processarFoto(event)"></label>
+                <label class="btn-gal">🖼️ Galería<input type="file" id="foto-gal" accept="image/*" style="display:none;" onchange="processarFoto(event)"></label>
             </div>
             <img id="preview-foto" class="preview-img" alt="Vista previa de la foto">
         </div>
@@ -139,10 +131,11 @@
         </div>
     </div>
 
-    <!-- Modal Categoria (Oculto) -->
+    <!-- Modal Nova/Editar Categoria -->
     <div id="modalCategoria" class="modal-overlay">
         <div class="modal-box">
-            <h3>✨ Nueva Categoría</h3>
+            <h3 id="cat-modal-title">✨ Nueva Categoría</h3>
+            <input type="hidden" id="edit-cat-oldname">
             <div class="form-group">
                 <label>Emoji Representativo:</label>
                 <input type="text" id="nova-cat-emoji" placeholder="Ej: 🍕" maxlength="2">
@@ -153,7 +146,21 @@
             </div>
             <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <button type="button" class="btn-main" style="background: #ef4444; margin-top: 0;" onclick="fecharModalCategoria()">Cancelar</button>
-                <button type="button" class="btn-main" style="margin-top: 0;" onclick="salvarNovaCategoria()">Guardar</button>
+                <button type="button" class="btn-main" style="margin-top: 0;" onclick="salvarCategoria()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Erro/Proteção ao Deletar Categoria -->
+    <div id="modalErroCat" class="modal-overlay">
+        <div class="modal-box" style="border-color: #ef4444;">
+            <h3 style="color: #ef4444;">⚠️ Categoría en Uso</h3>
+            <p style="font-size: 0.9rem; color: var(--text-main);" id="erro-cat-msg">Hay X productos usando esta categoría.</p>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 20px;">No puedes eliminarla directamente. Seleccione una opción:</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn-main" style="background: #3b82f6; margin:0;" onclick="abrirModalEditarCategoria()">✏️ Solo Editar el Nombre/Emoji</button>
+                <button class="btn-main" style="background: var(--surface-hover); color: white; border: 1px solid var(--border); margin:0;" onclick="fecharModalErroCat()">Cancelar</button>
             </div>
         </div>
     </div>
@@ -163,7 +170,7 @@
 
         let produtoEditandoId = null;
         let produtosNoBanco = JSON.parse(localStorage.getItem('pak_productos')) || [];
-        let imagemTemporaria = null; // Guarda a foto da câmera/galeria
+        let imagemTemporaria = null; 
 
         let categoriasPadrao = [
             { nome: 'Carnicería', emoji: '🥩' }, { nome: 'Frutas y Verduras', emoji: '🍎' },
@@ -178,29 +185,74 @@
             categorias.forEach(cat => { select.innerHTML += `<option value="${cat.nome}">${cat.emoji} ${cat.nome}</option>`; });
         }
 
-        function abrirModalCategoria() { document.getElementById('modalCategoria').style.display = 'flex'; }
-        function fecharModalCategoria() { document.getElementById('modalCategoria').style.display = 'none'; }
-        
-        function salvarNovaCategoria() {
-            const emoji = document.getElementById('nova-cat-emoji').value.trim();
-            const nome = document.getElementById('nova-cat-nome').value.trim();
-            if(nome && emoji) {
-                categorias.push({ nome, emoji });
-                localStorage.setItem('pak_categorias', JSON.stringify(categorias));
-                carregarCategoriasNoSelect();
-                fecharModalCategoria();
-                document.getElementById('add-cat').value = nome; 
-            } else { alert('Por favor, llena el emoji y el nombre.'); }
+        // SISTEMA INTELIGENTE DE CATEGORIAS
+        function abrirModalNovaCategoria() { 
+            document.getElementById('cat-modal-title').innerText = "✨ Nueva Categoría";
+            document.getElementById('edit-cat-oldname').value = '';
+            document.getElementById('nova-cat-emoji').value = '';
+            document.getElementById('nova-cat-nome').value = '';
+            document.getElementById('modalCategoria').style.display = 'flex'; 
         }
 
-        function eliminarCategoriaSelecionada() {
-            const select = document.getElementById('add-cat');
-            const catNome = select.value;
+        function abrirModalEditarCategoria() {
+            fecharModalErroCat();
+            const catNomeAtual = document.getElementById('add-cat').value;
+            const catObj = categorias.find(c => c.nome === catNomeAtual);
+            
+            document.getElementById('cat-modal-title').innerText = "✏️ Editar Categoría";
+            document.getElementById('edit-cat-oldname').value = catNomeAtual;
+            document.getElementById('nova-cat-emoji').value = catObj.emoji;
+            document.getElementById('nova-cat-nome').value = catObj.nome;
+            document.getElementById('modalCategoria').style.display = 'flex';
+        }
+
+        function fecharModalCategoria() { document.getElementById('modalCategoria').style.display = 'none'; }
+        function fecharModalErroCat() { document.getElementById('modalErroCat').style.display = 'none'; }
+        
+        function salvarCategoria() {
+            const emoji = document.getElementById('nova-cat-emoji').value.trim();
+            const nome = document.getElementById('nova-cat-nome').value.trim();
+            const oldNome = document.getElementById('edit-cat-oldname').value;
+
+            if(!nome || !emoji) { alert('Llena el emoji y el nombre.'); return; }
+
+            if (oldNome !== '') {
+                // É UMA EDIÇÃO
+                let index = categorias.findIndex(c => c.nome === oldNome);
+                categorias[index].nome = nome;
+                categorias[index].emoji = emoji;
+                
+                // Atualiza todos os produtos que usavam a categoria velha
+                produtosNoBanco.forEach(p => { if(p.categoria === oldNome) p.categoria = nome; });
+                localStorage.setItem('pak_productos', JSON.stringify(produtosNoBanco));
+                renderizarLista();
+            } else {
+                // É UMA CRIAÇÃO
+                categorias.push({ nome, emoji });
+            }
+
+            localStorage.setItem('pak_categorias', JSON.stringify(categorias));
+            carregarCategoriasNoSelect();
+            fecharModalCategoria();
+            document.getElementById('add-cat').value = nome; 
+        }
+
+        function tentarEliminarCategoria() {
+            const catNome = document.getElementById('add-cat').value;
             if(!catNome) return;
-            if(confirm(`¿Estás seguro de que deseas eliminar la categoría "${catNome}"?`)) {
-                categorias = categorias.filter(c => c.nome !== catNome);
-                localStorage.setItem('pak_categorias', JSON.stringify(categorias));
-                carregarCategoriasNoSelect();
+
+            // PROTEÇÃO: Conta quantos produtos usam essa categoria
+            let produtosRelacionados = produtosNoBanco.filter(p => p.categoria === catNome).length;
+
+            if(produtosRelacionados > 0) {
+                document.getElementById('erro-cat-msg').innerHTML = `Existen <b>${produtosRelacionados} productos</b> registrados en "<b>${catNome}</b>".`;
+                document.getElementById('modalErroCat').style.display = 'flex';
+            } else {
+                if(confirm(`¿Deseas eliminar la categoría vacía "${catNome}"?`)) {
+                    categorias = categorias.filter(c => c.nome !== catNome);
+                    localStorage.setItem('pak_categorias', JSON.stringify(categorias));
+                    carregarCategoriasNoSelect();
+                }
             }
         }
 
@@ -246,7 +298,6 @@
             }
         }
 
-        // FUNÇÃO DA CÂMERA E GALERIA
         function processarFoto(event) {
             if (event.target.files && event.target.files[0]) {
                 const reader = new FileReader();
@@ -271,10 +322,10 @@
                 
                 document.getElementById('foto-cam').value = '';
                 document.getElementById('foto-gal').value = '';
-                imagemTemporaria = null; // Reseta a imagem nova
+                imagemTemporaria = null; 
 
                 const preview = document.getElementById('preview-foto');
-                preview.src = p.foto; // Mostra a foto antiga
+                preview.src = p.foto; 
                 preview.style.display = 'block';
                 
                 produtoEditandoId = id;
